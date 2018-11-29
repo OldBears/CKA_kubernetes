@@ -8,7 +8,7 @@
     
   2、配置hosts解析
     
-   2.1 编辑配置文件
+   （1）编辑配置文件
     
     vi /etc/hosts
     127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
@@ -17,7 +17,7 @@
     192.168.0.201	node1
     192.168.0.202	node2
     
-   2.2 同步三台节点的hosts文件
+   （2）同步三台节点的hosts文件
     
     #scp /etc/hosts 192.168.0.200:/etc/
     #scp /etc/hosts 192.168.0.200:/etc/
@@ -39,7 +39,34 @@
     net.bridge.bridge-nf-call-iptables = 1
     net.ipv4.ip_forward = 1
     
-   5.1 执行命令使修改生效。
+   （1）执行命令使修改生效。
 
     #modprobe br_netfilter
     #sysctl -p /etc/sysctl.d/k8s.conf
+
+  6、修改系统时间，同步时间
+  
+   （1）修改时区
+    
+      rm -rf /etc/localtime
+      ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+      vim /etc/sysconfig/clock
+      ZONE="Asia/Shanghai"
+      UTC=false
+      ARC=false
+      
+  （2）安装并设置开机自启
+    
+    yum install -y ntp
+    systemctl start ntpd
+    systemctl enable ntpd
+    
+  （3）配置开机启动校验
+
+    vim /etc/rc.d/rc.local
+    /usr/sbin/ntpdate ntp1.aliyun.com > /dev/null 2>&1; /sbin/hwclock -w
+
+  （4）配置定时任务
+
+    crontab -e
+    0 */1 * * * ntpdate ntp1.aliyun.com > /dev/null 2>&1; /sbin/hwclock -w
