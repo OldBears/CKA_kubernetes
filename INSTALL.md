@@ -387,21 +387,20 @@
 	quay.io/coreos/flannel   v0.10.0-amd64       f0fad859c909        10 months ago       44.6MB
 	k8s.gcr.io/pause         3.1                 da86e6ba6ca1        11 months ago       742kB
 
-	
    （3）查询pods运行情况
    
-   	#kubectl get pods -n kube-system
-	NAME                             READY   STATUS    RESTARTS   AGE
-	coredns-576cbf47c7-58j5g         1/1     Running   0          3h17m
-	coredns-576cbf47c7-tcxd4         1/1     Running   0          3h17m
-	etcd-master                      1/1     Running   0          135m
-	kube-apiserver-master            1/1     Running   0          135m
-	kube-controller-manager-master   1/1     Running   1          135m
-	kube-flannel-ds-amd64-79z4g      1/1     Running   0          163m
-	kube-flannel-ds-amd64-ktzjv      1/1     Running   0          18m
-	kube-proxy-ccpps                 1/1     Running   0          3h17m
-	kube-proxy-s8mgl                 1/1     Running   0          18m
-	kube-scheduler-master            1/1     Running   1          135m
+   	#kubectl get pods -n kube-system -o wide
+	NAME                             READY   STATUS    RESTARTS   AGE     IP               NODE     NOMINATED NODE
+	coredns-576cbf47c7-58j5g         1/1     Running   0          3h24m   10.244.0.2       master   <none>
+	coredns-576cbf47c7-tcxd4         1/1     Running   0          3h24m   10.244.0.3       master   <none>
+	etcd-master                      1/1     Running   0          141m    192.168.60.120   master   <none>
+	kube-apiserver-master            1/1     Running   0          142m    192.168.60.120   master   <none>
+	kube-controller-manager-master   1/1     Running   1          141m    192.168.60.120   master   <none>
+	kube-flannel-ds-amd64-79z4g      1/1     Running   0          170m    192.168.60.120   master   <none>
+	kube-flannel-ds-amd64-ktzjv      1/1     Running   0          24m     192.168.60.113   node1    <none>
+	kube-proxy-ccpps                 1/1     Running   0          3h24m   192.168.60.120   master   <none>
+	kube-proxy-s8mgl                 1/1     Running   0          24m     192.168.60.113   node1    <none>
+	kube-scheduler-master            1/1     Running   1          141m    192.168.60.120   master   <none>
 
    （4）查询nodes情况
 	
