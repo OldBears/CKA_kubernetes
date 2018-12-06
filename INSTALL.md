@@ -403,6 +403,12 @@
 	kube-proxy-s8mgl                 1/1     Running   0          18m
 	kube-scheduler-master            1/1     Running   1          135m
 
+   （4）查询nodes情况
 	
+	[root@master ~]# kubectl get nodes
+	NAME     STATUS   ROLES    AGE     VERSION
+	master   Ready    master   3h22m   v1.12.3
+	node1    Ready    <none>   22m     v1.12.3
+
       
 
