@@ -408,6 +408,34 @@
 	NAME     STATUS   ROLES    AGE     VERSION
 	master   Ready    master   3h22m   v1.12.3
 	node1    Ready    <none>   22m     v1.12.3
+	
+ 6、另外节点加入集群
+ 
+	# kubeadm join 192.168.60.120:6443 --token wbqp81.aol6fvxawiim59ct --discovery-token-ca-cert-hash sha256:e054410cff470505146ab7447a887e4308e6e903ccae83f0133c2a1cfe5d3069 --ignore-preflight-errors=Swap
 
-      
+	[preflight] running pre-flight checks
+	[WARNING RequiredIPVSKernelModulesAvailable]: the IPVS proxier will not be used, because the following required kernel modules are not loaded: [ip_vs_rr ip_vs_wrr ip_vs_sh ip_vs] or no builtin kernel ipvs support: map[ip_vs:{} ip_vs_rr:{} ip_vs_wrr:{} ip_vs_sh:{} nf_conntrack_ipv4:{}]
+	you can solve this problem with following methods:
+	1. Run 'modprobe -- ' to load missing kernel modules;
+	2. Provide the missing builtin kernel ipvs support
+	[WARNING Swap]: running with swap on is not supported. Please disable swap
+	[discovery] Trying to connect to API Server "192.168.60.120:6443"
+	[discovery] Created cluster-info discovery client, requesting info from "https://192.168.60.120:6443"
+	[discovery] Requesting info from "https://192.168.60.120:6443" again to validate TLS against the pinned public key
+	[discovery] Cluster info signature and contents are valid and TLS certificate validates against pinned roots, will use API Server "192.168.60.120:6443"
+	[discovery] Successfully established connection with API Server "192.168.60.120:6443"
+	[kubelet] Downloading configuration for the kubelet from the "kubelet-config-1.12" ConfigMap in the kube-system namespace
+	[kubelet] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+	[kubelet] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+	[preflight] Activating the kubelet service
+	[tlsbootstrap] Waiting for the kubelet to perform the TLS Bootstrap...
+	[patchnode] Uploading the CRI Socket information "/var/run/dockershim.sock" to the Node API object "node2" as an annotation
+	
+	This node has joined the cluster:
+	* Certificate signing request was sent to apiserver and a response was received.
+	* The Kubelet was informed of the new secure connection details.
+
+	Run 'kubectl get nodes' on the master to see this node join the cluster.
+
+
 
