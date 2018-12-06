@@ -410,7 +410,8 @@
 	node1    Ready    <none>   22m     v1.12.3
 	
  6、另外节点加入集群
- 
+  （1）加入集群
+  
 	# kubeadm join 192.168.60.120:6443 --token wbqp81.aol6fvxawiim59ct --discovery-token-ca-cert-hash sha256:e054410cff470505146ab7447a887e4308e6e903ccae83f0133c2a1cfe5d3069 --ignore-preflight-errors=Swap
 
 	[preflight] running pre-flight checks
@@ -437,5 +438,21 @@
 
 	Run 'kubectl get nodes' on the master to see this node join the cluster.
 
+ （2）状态查询
+ 
+ 	[root@master ~]# kubectl get pods -n kube-system -o wide
+	NAME                             READY   STATUS    RESTARTS   AGE     IP               NODE     NOMINATED NODE
+	coredns-576cbf47c7-58j5g         1/1     Running   0          3h35m   10.244.0.2       master   <none>
+	coredns-576cbf47c7-tcxd4         1/1     Running   0          3h35m   10.244.0.3       master   <none>
+	etcd-master                      1/1     Running   0          152m    192.168.60.120   master   <none>
+	kube-apiserver-master            1/1     Running   0          153m    192.168.60.120   master   <none>
+	kube-controller-manager-master   1/1     Running   1          152m    192.168.60.120   master   <none>
+	kube-flannel-ds-amd64-79z4g      1/1     Running   0          3h1m    192.168.60.120   master   <none>
+	kube-flannel-ds-amd64-ktzjv      1/1     Running   0          35m     192.168.60.113   node1    <none>
+	kube-flannel-ds-amd64-mgqxc      1/1     Running   0          2m23s   192.168.60.114   node2    <none>
+	kube-proxy-5wvdf                 1/1     Running   0          2m23s   192.168.60.114   node2    <none>
+	kube-proxy-ccpps                 1/1     Running   0          3h35m   192.168.60.120   master   <none>
+	kube-proxy-s8mgl                 1/1     Running   0          35m     192.168.60.113   node1    <none>
+	kube-scheduler-master            1/1     Running   1          153m    192.168.60.120   master   <none>
 
 
