@@ -284,8 +284,52 @@
   	#kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 	
   （3）等待flannel，images，pull完成，使用kubectl get nodes，STATUS状态为Ready，即为正常
-
   
+  	#等待超过了两个小时才成功
+  
+  （4）使用docker images查询flannel镜像情况
+  
+  	#docker images
+	[root@master ~]# docker images
+	REPOSITORY                           TAG                 IMAGE ID            CREATED             SIZE
+	k8s.gcr.io/kube-proxy                v1.12.3             ab97fa69b926        9 days ago          96.5MB
+	k8s.gcr.io/kube-apiserver            v1.12.3             6b54f7bebd72        9 days ago          194MB
+	k8s.gcr.io/kube-controller-manager   v1.12.3             c79022eb8bc9        9 days ago          164MB
+	k8s.gcr.io/kube-scheduler            v1.12.3             5e75513787b1        9 days ago          58.3MB
+	k8s.gcr.io/etcd                      3.2.24              3cab8e1b9802        2 months ago        220MB
+	k8s.gcr.io/coredns                   1.2.2               367cdc8433a4        3 months ago        39.2MB
+	quay.io/coreos/flannel               v0.10.0-amd64       f0fad859c909        10 months ago       44.6MB
+	k8s.gcr.io/pause                     3.1                 da86e6ba6ca1        11 months ago       742kB
+
+  （5）使用kubectl 查询pod情况，node节点
+  
+  	# kubectl get nodes
+	NAME     STATUS   ROLES    AGE    VERSION
+	master   Ready    master   166m   v1.12.3
+
+	# kubectl get pods -n kube-system
+	NAME                             READY   STATUS    RESTARTS   AGE
+	coredns-576cbf47c7-58j5g         1/1     Running   0          166m
+	coredns-576cbf47c7-tcxd4         1/1     Running   0          166m
+	etcd-master                      1/1     Running   0          103m
+	kube-apiserver-master            1/1     Running   0          104m
+	kube-controller-manager-master   1/1     Running   1          103m
+	kube-flannel-ds-amd64-79z4g      1/1     Running   0          132m
+	kube-proxy-ccpps                 1/1     Running   0          166m
+	kube-scheduler-master            1/1     Running   1          104m
+	
+	# kubectl get cs
+	NAME                 STATUS    MESSAGE              ERROR
+	controller-manager   Healthy   ok                   
+	scheduler            Healthy   ok                   
+	etcd-0               Healthy   {"health": "true"}  
+	
+	# kubectl get ns
+	NAME          STATUS   AGE
+	default       Active   175m
+	kube-public   Active   175m
+	kube-system   Active   175m
+
 四、node1节点加入集群
 
  1、安装docker、kubeadm、kubelet、kubectl
@@ -303,6 +347,62 @@
   
       KUBELET_EXTRA_ARGS=--fail-swap-on=false
       
- 4、
+ 4、加入集群
+   
+   （1）加入集群
+
+	#kubeadm join 192.168.60.120:6443 --token wbqp81.aol6fvxawiim59ct --discovery-token-ca-cert-hash sha256:e054410cff470505146ab7447a887e4308e6e903ccae83f0133c2a1cfe5d3069 --ignore-preflight-errors=Swap
+	
+   （2）查询PODS状态(显示为异常状态)
+   
+   	# kubectl get pods -n kube-system
+	NAME                             READY   STATUS              RESTARTS   AGE
+	coredns-576cbf47c7-58j5g         1/1     Running             0          3h7m
+	coredns-576cbf47c7-tcxd4         1/1     Running             0          3h7m
+	etcd-master                      1/1     Running             0          124m
+	kube-apiserver-master            1/1     Running             0          125m
+	kube-controller-manager-master   1/1     Running             1          124m
+	kube-flannel-ds-amd64-79z4g      1/1     Running             0          153m
+	kube-flannel-ds-amd64-ktzjv      0/1     Init:0/1            0          7m59s
+	kube-proxy-ccpps                 1/1     Running             0          3h7m
+	kube-proxy-s8mgl                 0/1     ContainerCreating   0          7m59s
+	kube-scheduler-master            1/1     Running             1          125m
+	
+ 5、从主加点保存kube-proxy、pause镜像，然后上传到node1
+ 
+   （1）master save
+   
+ 	#docker save k8s.gcr.io/pause:3.1 -o pause.tar
+	#docker save k8s.gcr.io/kube-proxy:v1.12.3 -o kube-proxy.tar
+	#docker save quay.io/coreos/flannel:v0.10.0-amd64 -o flannel.tar
+	
+   （2）node load
+	
+	#docker load -i pause.tar
+	#docker load -i kube-proxy.tar
+	#docker load -i flannel.tar
+	# docker images			##查询node节点情况
+	REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE
+	k8s.gcr.io/kube-proxy    v1.12.3             ab97fa69b926        9 days ago          96.5MB
+	quay.io/coreos/flannel   v0.10.0-amd64       f0fad859c909        10 months ago       44.6MB
+	k8s.gcr.io/pause         3.1                 da86e6ba6ca1        11 months ago       742kB
+
+	
+   （3）查询pods运行情况
+   
+   	#kubectl get pods -n kube-system
+	NAME                             READY   STATUS    RESTARTS   AGE
+	coredns-576cbf47c7-58j5g         1/1     Running   0          3h17m
+	coredns-576cbf47c7-tcxd4         1/1     Running   0          3h17m
+	etcd-master                      1/1     Running   0          135m
+	kube-apiserver-master            1/1     Running   0          135m
+	kube-controller-manager-master   1/1     Running   1          135m
+	kube-flannel-ds-amd64-79z4g      1/1     Running   0          163m
+	kube-flannel-ds-amd64-ktzjv      1/1     Running   0          18m
+	kube-proxy-ccpps                 1/1     Running   0          3h17m
+	kube-proxy-s8mgl                 1/1     Running   0          18m
+	kube-scheduler-master            1/1     Running   1          135m
+
+	
       
 
