@@ -13,14 +13,15 @@
     vi /etc/hosts
     127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
     ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-    192.168.0.200	master
-    192.168.0.201	node1
-    192.168.0.202	node2
+    192.168.60.120	master
+    192.168.60.114	node2
+    192.168.60.113	node1
+
     
    （2）同步三台节点的hosts文件
     
-    #scp /etc/hosts 192.168.0.200:/etc/
-    #scp /etc/hosts 192.168.0.200:/etc/
+    #scp /etc/hosts 192.168.60.134:/etc/
+    #scp /etc/hosts 192.168.60.133:/etc/
 
   3、防火墙配置
   
