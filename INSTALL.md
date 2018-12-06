@@ -132,6 +132,8 @@
       
   5、初始化集群
   
+   （1）Swap提醒报错
+      
       #kubeadm init --kubernetes-version=v1.12.3 --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/16
       报错如下：
       [init] using Kubernetes version: v1.12.3
@@ -140,8 +142,9 @@
 		[ERROR Swap]: running with swap on is not supported. Please disable swap
 	[preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
 
+   （1）、kubeadm docker镜像下载失败报错
       
-      再次执行：
+      执行：
       #kubeadm init --kubernetes-version=v1.12.3 --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/16 --ignore-preflight-errors=Swap
       
       报错如下：
@@ -156,34 +159,34 @@
 	[ERROR ImagePull]: failed to pull image k8s.gcr.io/coredns:1.2.2: output: Error response from daemon: Get https://k8s.gcr.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers), error: exit status 1
 	[preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
 
- 
+
+  （2）镜像下载失败，解决方式
 
     此报错为为下载image报错，我们可以自行下载使用，见下脚本：
     
-	    docker pull mirrorgooglecontainers/kube-apiserver:v1.12.3
-	    docker pull mirrorgooglecontainers/kube-controller-manager:v1.12.3
-	    docker pull mirrorgooglecontainers/kube-scheduler:v1.12.3
-	    docker pull mirrorgooglecontainers/kube-proxy:v1.12.3
-	    docker pull mirrorgooglecontainers/pause:3.1
-	    docker pull mirrorgooglecontainers/etcd:3.2.24
-	    docker pull coredns/coredns:1.2.2
+	docker pull mirrorgooglecontainers/kube-apiserver:v1.12.3
+	docker pull mirrorgooglecontainers/kube-controller-manager:v1.12.3
+	docker pull mirrorgooglecontainers/kube-scheduler:v1.12.3
+	docker pull mirrorgooglecontainers/kube-proxy:v1.12.3
+	docker pull mirrorgooglecontainers/pause:3.1
+	docker pull mirrorgooglecontainers/etcd:3.2.24
+	docker pull coredns/coredns:1.2.2
 
-	    docker tag mirrorgooglecontainers/kube-proxy:v1.12.3  k8s.gcr.io/kube-proxy:v1.12.3
-	    docker tag mirrorgooglecontainers/kube-scheduler:v1.12.3 k8s.gcr.io/kube-scheduler:v1.12.3
-	    docker tag mirrorgooglecontainers/kube-apiserver:v1.12.3 k8s.gcr.io/kube-apiserver:v1.12.3
-	    docker tag mirrorgooglecontainers/kube-controller-manager:v1.12.3 k8s.gcr.io/kube-controller-manager:v1.12.3
-	    docker tag mirrorgooglecontainers/etcd:3.2.24  k8s.gcr.io/etcd:3.2.24
-	    docker tag coredns/coredns:1.2.2 k8s.gcr.io/coredns:1.2.2
-	    docker tag mirrorgooglecontainers/pause:3.1  k8s.gcr.io/pause:3.1
+	docker tag mirrorgooglecontainers/kube-proxy:v1.12.3  k8s.gcr.io/kube-proxy:v1.12.3
+	docker tag mirrorgooglecontainers/kube-scheduler:v1.12.3 k8s.gcr.io/kube-scheduler:v1.12.3
+	docker tag mirrorgooglecontainers/kube-apiserver:v1.12.3 k8s.gcr.io/kube-apiserver:v1.12.3
+	docker tag mirrorgooglecontainers/kube-controller-manager:v1.12.3 k8s.gcr.io/kube-controller-manager:v1.12.3
+	docker tag mirrorgooglecontainers/etcd:3.2.24  k8s.gcr.io/etcd:3.2.24
+	docker tag coredns/coredns:1.2.2 k8s.gcr.io/coredns:1.2.2
+	docker tag mirrorgooglecontainers/pause:3.1  k8s.gcr.io/pause:3.1
 
-
-	    docker rmi mirrorgooglecontainers/kube-apiserver:v1.12.3
-	    docker rmi mirrorgooglecontainers/kube-controller-manager:v1.12.3
-	    docker rmi mirrorgooglecontainers/kube-scheduler:v1.12.3
-	    docker rmi mirrorgooglecontainers/kube-proxy:v1.12.3
-	    docker rmi mirrorgooglecontainers/pause:3.1
-	    docker rmi mirrorgooglecontainers/etcd:3.2.24
-	    docker rmi coredns/coredns:1.2.2
+	docker rmi mirrorgooglecontainers/kube-apiserver:v1.12.3
+	docker rmi mirrorgooglecontainers/kube-controller-manager:v1.12.3
+	docker rmi mirrorgooglecontainers/kube-scheduler:v1.12.3
+	docker rmi mirrorgooglecontainers/kube-proxy:v1.12.3
+	docker rmi mirrorgooglecontainers/pause:3.1
+	docker rmi mirrorgooglecontainers/etcd:3.2.24
+	docker rmi coredns/coredns:1.2.2
 
  5、重新初始化集群
 
@@ -252,9 +255,54 @@
 	as root:
 
 	  kubeadm join 192.168.60.120:6443 --token wbqp81.aol6fvxawiim59ct --discovery-token-ca-cert-hash sha256:e054410cff470505146ab7447a887e4308e6e903ccae83f0133c2a1cfe5d3069
+	  
+ 6、开始使用集群时，需要对普通用户做以下内容（生产环境中建议使用普通用户）
+     
+     #mkdir -p $HOME/.kube
+     #cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+     #chown $(id -u):$(id -g) $HOME/.kube/config
+
+ 7、查询集群状态，确认是否正常
+ 
+     显示以下内容为正常
+     #kubectl get cs
+     NAME                 STATUS    MESSAGE              ERROR
+     scheduler            Healthy   ok                   
+     controller-manager   Healthy   ok                   
+     etcd-0               Healthy   {"health": "true"}  
+   
+ 8、安装flannel网络
+ 
+  （1）查询集群节点状态，节点STATUS为NotReady状态，原因为没有pods网络
+  	
+	[root@master ~]# kubectl get nodes
+	NAME     STATUS     ROLES    AGE   VERSION
+	master   NotReady   master   35m   v1.12.3
+
+  （2）安装flannel，pods网络
+  
+  	#kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+	
+  （3）等待flannel，images，pull完成，使用kubectl get nodes，STATUS状态为Ready，即为正常
 
   
-  
+四、node1节点加入集群
 
+ 1、安装docker、kubeadm、kubelet、kubectl
+ 
+ 	#yum install -y --setopt=obsoletes=0 docker-ce-18.06.1.ce-3.el7
+	#rpm --import https://mirrors.aliyun.com/kubernetes/apt/doc/rpm-package-key.gpg
+	#yum install -y kubelet-1.12.3 kubeadm-1.12.3 kubectl-1.12.3
+	
+ 2、设置docker、kubelet自启动
+ 
+ 	#systemctl enable docker
+	#systemctl enable kubelet
+	
+ 3、修改/etc/sysconfig/kublet
+  
+      KUBELET_EXTRA_ARGS=--fail-swap-on=false
+      
+ 4、
       
 
