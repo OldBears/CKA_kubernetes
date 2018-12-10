@@ -323,7 +323,7 @@
       nginx        ClusterIP   10.96.183.124   <none>        80/TCP    4m38s   run=nginx-deploy
 
      mynginx1为pods名称
-     --name-mynginx1,为新的svc名称
+     --name=mynginx1,为新的svc名称
      --port=8081,为svc的IP及端口
      --target-port=80，为pods的实际端口
      --protocol=TCP，为协议，另外还支持UDP、SCTP
@@ -335,6 +335,10 @@
       mynginx1     ClusterIP   10.96.134.107   <none>        80/TCP     8m13s   run=mynginx1
       nginx        ClusterIP   10.96.183.124   <none>        80/TCP     11m     run=nginx-deploy
 
+  （5）edit
+  
+     #kubectl edit (pods\svc\)
+     
      
      
 
