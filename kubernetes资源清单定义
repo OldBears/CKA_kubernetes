@@ -1,0 +1,152 @@
+一、基本定义
+
+  1、基本动作
+  
+    GET、PUT、DELETE、POST
+    kubectl (get run edit)
+  
+  2、资源对象
+  
+    wordload:Pod ReplicaSet, Deployment, Statefulset, DaemonSet, Job, Crontab
+    服务发现：Service,ingress
+    配置与存储：Volume,CSI
+    Configmap Secret
+    DownwardAPI
+    
+  3、集群级资源
+  
+      Namespace ,node ,role,clusterRole,Rolebinding,clusterRoleBing
+   
+  4、元数据资源
+  
+      HPA
+      
+  5、创建资源的方法
+  
+      apiserver仅接收JSON格式的资源定义；
+      yaml格式提供配置清单，apiserver可以自动转为JSON格式，然后再提交。
+      
+  6、yaml文件模版
+  
+       #kubectl get pods myhttpd-56c6cf787c-gms2q -o yaml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        creationTimestamp: 2018-12-11T00:30:50Z
+        generateName: myhttpd-56c6cf787c-
+        labels:
+          pod-template-hash: 56c6cf787c
+          run: myhttpd
+        name: myhttpd-56c6cf787c-gms2q
+        namespace: default
+        ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: myhttpd-56c6cf787c
+          uid: 302bb779-fc6b-11e8-bca5-08002746b2e4
+        resourceVersion: "144983"
+        selfLink: /api/v1/namespaces/default/pods/myhttpd-56c6cf787c-gms2q
+        uid: 02f0435e-fcdc-11e8-bca5-08002746b2e4
+      spec:
+        containers:
+        - image: httpd:latest
+          imagePullPolicy: Always
+          name: myhttpd
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+            name: default-token-jp9l9
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        nodeName: node2
+        priority: 0
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: default
+        serviceAccountName: default
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+        volumes:
+        - name: default-token-jp9l9
+          secret:
+            defaultMode: 420
+            secretName: default-token-jp9l9
+      status:
+        conditions:
+        - lastProbeTime: null
+          lastTransitionTime: 2018-12-11T01:10:46Z
+          status: "True"
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: 2018-12-12T09:44:57Z
+          status: "True"
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: 2018-12-12T09:44:57Z
+          status: "True"
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: 2018-12-11T00:30:52Z
+          status: "True"
+          type: PodScheduled
+        containerStatuses:
+        - containerID: docker://b167d30a572f02f662b892fcedc9c0f70b6fbe6917c7b3a70158e07eef590c50
+          image: httpd:latest
+          imageID: docker-pullable://httpd@sha256:90b34f4370518872de4ac1af696a90d982fe99b0f30c9be994964f49a6e2f421
+          lastState:
+            terminated:
+              containerID: docker://a0e916c5ec8952970062bdd8d9c0f63042201166f8f146560f9b474c57c4f0c1
+              exitCode: 0
+              finishedAt: 2018-12-11T03:34:37Z
+              reason: Completed
+              startedAt: 2018-12-11T02:15:44Z
+          name: myhttpd
+          ready: true
+          restartCount: 5
+          state:
+            running:
+              startedAt: 2018-12-12T09:44:56Z
+        hostIP: 192.168.60.114
+        phase: Running
+        podIP: 10.244.2.31
+        qosClass: BestEffort
+        startTime: 2018-12-11T01:10:46Z
+
+      
+  6、大部分资源的配置清单：
+      
+      (1)apiversion
+      以group/version的方式定义
+          #kubectl api-versions,查看
+      (2)kind：资源类别
+      Pod ReplicaSet, Deployment, Statefulset, DaemonSet, Job, Crontab
+      
+      (3)metadata：元数据
+        name
+        namespace
+        labels
+        annotations
+        
+        selflink每个资源的引用PATH
+          /api/GROUP/version/namespaces/NAMESPACE/TYPE/NAME
+       
+       (4)spec:期望的状态，disired state
+       
+       (5)status:当前状态
+        
+        
+      
+    
