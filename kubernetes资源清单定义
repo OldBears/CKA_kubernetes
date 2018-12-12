@@ -147,6 +147,121 @@
        
        (5)status:当前状态
         
+  7、使用kubectl explain 查询yaml格式
+  
+        #kubectl explain pods.metadata.selfLink
+   
+  8、创建yaml文件
+
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: pod-demo
+            namespace: default
+            labels:
+               app: myapp
+               tier: frontend
+          spec:
+            containers:
+            - name: mywebservice
+              image: nginx:latest
+            - name: mywebservice1
+              image: nginx:latest
+              command: 
+              - "/bin/sh"
+              - "-c"
+              - "sleep 5 "
+
+        #kubectl create -f pods.daemon.yaml
+        #kubectl get pods pods.demo
+        NAME                       READY   STATUS    RESTARTS   AGE
+        myhttpd-56c6cf787c-gms2q   1/1     Running   5          35h
+        mynginx-556f94ccdd-g58sb   1/1     Running   5          2d1h
+        pod-demo                   1/2     Running   5          3m53s
+
+        #kubectl describe pods pod-demo
         
-      
-    
+          # kubectl describe pods pod-demo
+          Name:               pod-demo
+          Namespace:          default
+          Priority:           0
+          PriorityClassName:  <none>
+          Node:               node1/192.168.60.113
+          Start Time:         Wed, 12 Dec 2018 19:39:03 +0800
+          Labels:             app=myapp
+                              tier=frontend
+          Annotations:        <none>
+          Status:             Running
+          IP:                 10.244.1.33
+          Containers:
+            mywebservice:
+              Container ID:   docker://5890f1fd50241a681a131fd253e4b4590d4934eb6d0b3b505e73d2e9c5fca9af
+              Image:          nginx:latest
+              Image ID:       docker-pullable://nginx@sha256:d59a1aa7866258751a261bae525a1842c7ff0662d4f34a355d5f36826abc0341
+              Port:           <none>
+              Host Port:      <none>
+              State:          Running
+                Started:      Wed, 12 Dec 2018 19:39:34 +0800
+              Ready:          True
+              Restart Count:  0
+              Environment:    <none>
+              Mounts:
+                /var/run/secrets/kubernetes.io/serviceaccount from default-token-jp9l9 (ro)
+            mywebservice1:
+              Container ID:  docker://8f78fa25997f0f94b86ee6c2adba1a95e161c05457f538ec948474f1361f9076
+              Image:         nginx:latest
+              Image ID:      docker-pullable://nginx@sha256:d59a1aa7866258751a261bae525a1842c7ff0662d4f34a355d5f36826abc0341
+              Port:          <none>
+              Host Port:     <none>
+              Command:
+                /bin/sh
+                -c
+                echo $(date) >> /usr/share/nginx/html/index.html; sleep 5 
+              State:          Waiting
+                Reason:       CrashLoopBackOff
+              Last State:     Terminated
+                Reason:       Completed
+                Exit Code:    0
+                Started:      Wed, 12 Dec 2018 19:41:40 +0800
+                Finished:     Wed, 12 Dec 2018 19:41:45 +0800
+              Ready:          False
+              Restart Count:  4
+              Environment:    <none>
+              Mounts:
+                /var/run/secrets/kubernetes.io/serviceaccount from default-token-jp9l9 (ro)
+          Conditions:
+            Type              Status
+            Initialized       True 
+            Ready             False 
+            ContainersReady   False 
+            PodScheduled      True 
+          Volumes:
+            default-token-jp9l9:
+              Type:        Secret (a volume populated by a Secret)
+              SecretName:  default-token-jp9l9
+              Optional:    false
+          QoS Class:       BestEffort
+          Node-Selectors:  <none>
+          Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                           node.kubernetes.io/unreachable:NoExecute for 300s
+          Events:
+            Type     Reason     Age                            From               Message
+            ----     ------     ----                           ----               -------
+            Normal   Scheduled  3m11s                          default-scheduler  Successfully assigned default/pod-demo to node1
+            Normal   Pulling    <invalid>                      kubelet, node1     pulling image "nginx:latest"
+            Normal   Pulled     <invalid>                      kubelet, node1     Successfully pulled image "nginx:latest"
+            Normal   Created    <invalid>                      kubelet, node1     Created container
+            Normal   Started    <invalid>                      kubelet, node1     Started container
+            Normal   Pulling    <invalid> (x4 over <invalid>)  kubelet, node1     pulling image "nginx:latest"
+            Normal   Pulled     <invalid> (x4 over <invalid>)  kubelet, node1     Successfully pulled image "nginx:latest"
+            Normal   Created    <invalid> (x4 over <invalid>)  kubelet, node1     Created container
+            Normal   Started    <invalid> (x4 over <invalid>)  kubelet, node1     Started container
+            Warning  BackOff    <invalid> (x5 over <invalid>)  kubelet, node1     Back-off restarting failed container
+
+  9、删除pod
+       
+       #kubectl delete -f pods.daemon.yaml
+       #kubectl get pods -o wide -w
+
+       
+       
