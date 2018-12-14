@@ -1,0 +1,40 @@
+一、Pod控制器进阶
+
+  1、大部分资源的配置清单：
+      
+      (1)apiversion
+      以group/version的方式定义
+          #kubectl api-versions,查看
+      (2)kind：资源类别
+      Pod ReplicaSet, Deployment, Statefulset, DaemonSet, Job, Crontab
+      
+      (3)metadata：元数据
+        name
+        namespace
+        labels
+        annotations
+        
+        selflink每个资源的引用PATH
+          /api/GROUP/version/namespaces/NAMESPACE/TYPE/NAME
+       
+       (4)spec:期望的状态，disired state
+       
+       (5)status:当前状态
+       
+ 2、pod资源
+ 
+      spec.containers <[]object>
+      - name (string)
+        image <string>
+        imagePullPolicy <string>
+        
+          Always：不管镜像是否存在都会进行一次拉取。
+          Never：不管镜像是否存在都不会进行拉取
+          IfNotPresent：只有镜像不存在时，才会进行镜像拉取。
+      注意：
+          默认为IfNotPresent，但:latest标签的镜像默认为Always。
+          拉取镜像时docker会进行校验，如果镜像中的MD5码没有变，则不会拉取镜像数据。
+          生产环境中应该尽量避免使用:latest标签，而开发环境中可以借助:latest标签自动拉取最新的镜像。
+          
+        command
+          https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
