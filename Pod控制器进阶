@@ -38,3 +38,16 @@
           
         command
           https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+          
+      标准:
+      
+        key=value
+          key:由字母、数字、_、-、.
+          value:可以为空，只能以字母或数字开头及结尾，中间可使用
+          
+        # kubectl label pods pod-demo release=canary
+        # kubectl get pods --show-labels
+          NAME                      READY   STATUS    RESTARTS   AGE     LABELS
+          nginx1-55fb7cfccd-6mj7f   1/1     Running   0          5h16m   pod-template-hash=55fb7cfccd,run=nginx1
+          pod-demo                  2/2     Running   3          31m     app=myapp,release=canary,tier=frontend
+
