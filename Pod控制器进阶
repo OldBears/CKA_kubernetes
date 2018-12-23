@@ -39,15 +39,52 @@
         command
           https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
           
-      标准:
+      标签:
       
         key=value
           key:由字母、数字、_、-、.
           value:可以为空，只能以字母或数字开头及结尾，中间可使用
-          
+        
+        A、为pod-demo创建新的标签
         # kubectl label pods pod-demo release=canary
         # kubectl get pods --show-labels
           NAME                      READY   STATUS    RESTARTS   AGE     LABELS
           nginx1-55fb7cfccd-6mj7f   1/1     Running   0          5h16m   pod-template-hash=55fb7cfccd,run=nginx1
           pod-demo                  2/2     Running   3          31m     app=myapp,release=canary,tier=frontend
+        
+        B、为pod-demo覆盖旧的标签
+        
+        # kubectl label pods pod-demo release=stable
+        error: 'release' already has a value (canary), and --overwrite is false
+        # kubectl label pods pod-demo release=stable --overwrite
+        pod/pod-demo labeled
+        # kubectl get pods --show-labels
+        NAME                      READY   STATUS    RESTARTS   AGE     LABELS
+        nginx1-55fb7cfccd-6mj7f   1/1     Running   0          5h19m   pod-template-hash=55fb7cfccd,run=nginx1
+        pod-demo                  2/2     Running   3          33m     app=myapp,release=stable,tier=frontend
+      
+        C、查询拥有stable标签的pod
+        
+        [root@master ~]# kubectl get pods -l release,app
+        NAME       READY   STATUS    RESTARTS   AGE
+        pod-demo   2/2     Running   4          37m
 
+        D、标签等值器
+        等值关系：=、==、！=，查询的时候用，比如kubectl get pods -l release!=stable
+        集合关系：
+                KEY in (VALUE1,VALUE2,...)
+                KEY notin (VALUE1,...) 
+                !KEY
+                
+        # kubectl get pods -l "release in (stable,run,beta)"
+        NAME       READY   STATUS    RESTARTS   AGE
+        pod-demo   2/2     Running   7          64m
+        [root@master ~]# kubectl get pods -l "release notin (stable,run,beta)"
+        NAME                      READY   STATUS    RESTARTS   AGE
+        nginx1-55fb7cfccd-6mj7f   1/1     Running   0          5h50m
+
+        E、许多资源支持内嵌字段定义其使用的标签选择器
+        
+            matchLables:直接给定键值
+            matchExpressions:基于给定的表达式来定义使用标签选择器
+    
