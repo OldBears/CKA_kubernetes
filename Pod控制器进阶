@@ -158,6 +158,55 @@
            unknown:
            创建pod：提供给apiserver，保存在etcd中，再进行schelle调试，调度到node1中运行pod
           
-
+        K、容器探测
+        
+            liveness
+            readness
+            
+        L、restartPolicy，失败重启策略
+            Always,总是重启
+            OnFailure
+            Never,从不重启
+            Default Always
          
-    
+        m、livenessProbe、readinessProbe
+          #cat livenessProbe.http.yaml
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: liveness-httpget-pod
+            namespace: default
+          spec:
+            containers:
+            - name: liveness-httpget-container
+              image: nginx:latest
+              imagePullPolicy: IfNotPresent
+              ports:
+              - name: http
+                containerPort: 80
+              livenessProbe:
+                httpGet:
+                  port: http
+                  path: /index.html
+                initialDelaySeconds: 1
+                periodSeconds: 3
+
+          # cat livenessProbe.yaml 
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: liveness-exec-pod
+              namespace: default
+            spec:
+              containers:
+              - name: liveness-exec-container
+                image: busybox:latest
+                imagePullPolicy: IfNotPresent
+                command: ["/bin/sh","-c","touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 3600"]
+                livenessProbe:
+                  exec:
+                    command: ["test","-e","/tmp/healthy"]
+                  initialDelaySeconds: 1
+                  periodSeconds: 3
+
+
