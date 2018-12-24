@@ -86,5 +86,78 @@
         E、许多资源支持内嵌字段定义其使用的标签选择器
         
             matchLables:直接给定键值
-            matchExpressions:基于给定的表达式来定义使用标签选择器
+            matchExpressions:基于给定的表达式来定义使用标签选择器,{key:"KEY",operator:"OPETATOR",values:[VAL1,VAL2..]}
+              操作符：
+              In,NotIn:values值必须为非空列表；
+              Exists,NotExists：values值必须为空列表；
+              
+        F、nodeSelector <map[string]string>
+        
+            节点标签选择器
+           
+            # kubectl get nodes --show-labels
+              NAME     STATUS   ROLES    AGE   VERSION   LABELS
+              master   Ready    master   18d   v1.12.3   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/hostname=master,node-role.kubernetes.io/master=
+              node1    Ready    <none>   18d   v1.12.3   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/hostname=node1
+              node2    Ready    <none>   18d   v1.12.3   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/hostname=node2
+              
+            # kubectl label nodes node1 disk=ssd
+              node/node1 labeled
+   
+            # kubectl get nodes -l disk --show-labels
+              NAME    STATUS   ROLES    AGE   VERSION   LABELS
+              node1   Ready    <none>   18d   v1.12.3   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,disk=ssd,kubernetes.io/hostname=node1
+              
+       G、使用nodeSelector进行pods节点选择
+       
+          step one、attach label to node
+          Run "kubectl get nodes" to get the names of your cluster’s nodes. Pick out the one that you want to add a label to, and then run "kubectl label nodes <node-name> <label-key>=<label-value> "to add a label to the node you’ve chosen. For example, if my node name is ‘kubernetes-foo-node-1.c.a-robinson.internal’ and my desired label is ‘disktype=ssd’, then I can run 
+          
+          step two、Add a nodeSelector field（字段） to your pod configuration
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: pod-demo
+            namespace: default
+            labels:
+               app: myapp
+               tier: frontend
+          spec:
+            containers:
+            - name: mywebservice
+              image: nginx:latest
+            - name: mywebservice1
+              image: nginx:latest
+              imagePullPolicy: IfNotPresent
+              command: 
+              - "/bin/sh"
+              - "-c"
+              - "sleep 3600 "
+            nodeSelector:
+              disktype: ssd
+           
+           step three:create pods by yaml files
+           #kubectl create -f pods.daemon.yaml
+           #kubectl get pods -o wide
+           #kubectl describe pods pod-demo
+           
+        H、使用nodeName进行节点选择<string>
+        
+            nodeName: node1
+            
+        I、annotations:
+        
+           与label不同的地方在于，它不能用于挑选资源对象，仅用于为对象提供“元数据”。
+           
+        J、pod生命周期
+        
+           pending：
+           Running：运行状态
+           Failed：失败
+           successed：
+           unknown:
+           创建pod：提供给apiserver，保存在etcd中，再进行schelle调试，调度到node1中运行pod
+          
+
+         
     
