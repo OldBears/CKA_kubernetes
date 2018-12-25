@@ -29,5 +29,13 @@
         labels:
           app:web
           
+  5、YAML,lists结构类型
   
-  
+    lists类型其实就是数列类型
+    
+      args
+       - value1
+       - value2
+       - value3
+       - value4
+  https://blog.csdn.net/phantom_111/article/details/79427144
