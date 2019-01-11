@@ -185,3 +185,113 @@ systemctl restart docker
 6、访问
    http://192.168.0.103
    
+
+二、上传镜像至仓库
+
+1、在harbor中创建public仓库、gfxu用户名
+
+2、下载相关容器
+
+   #docker pull busybox:latest
+   
+3、登陆registry服务器
+   docker login 192.168.0.103:80
+   username:gfxu
+   passwd 
+
+4、重新tag容器包(注意加上80，默认是443端口)
+
+   docker tag SOURCE_IMAGE[:TAG] 192.168.0.103:80/public/IMAGE[:TAG]
+   docker push 192.168.0.103:80/public/IMAGE[:TAG]
+   
+5、参考文档
+
+   https://github.com/goharbor/harbor/blob/master/docs/installation_guide.md
+   
+三、常见问题
+
+1、push镜像到本地仓库时报错
+
+    Error: Invalid registry endpoint https://10.10.3.67:5000/v2/: Get https://10.10.3.67:5000/v2/_ping: dial tcp 10.10.3.67:5000: connection refused. If this private registry supports only HTTP or HTTPS with an unknown CA certificate, please add `--insecure-registry 10.10.3.67:5000` to the daemon's arguments. In the case of HTTPS, if you have access to the registry's CA certificate, no need for the flag; simply place the CA certificate at /etc/docker/certs.d/10.10.3.67:5000/ca.crt 
+   或者
+   http: server gave HTTP response to HTTPS client
+   因为Docker从1.3.X之后，与docker registry交互默认使用的是https，然而此处搭建的私有仓库只提供http服务，所以当与私有仓库交互时就会报上面的错误。为了解决这个问题需要在启动docker server时增加启动参数为默认使用http访问。centos7下修改docker启动配置文件
+
+   [root@docker shell]# cat /usr/lib/systemd/system/docker.service 
+   [Unit]
+   Description=Docker Application Container Engine
+   Documentation=https://docs.docker.com
+   After=network-online.target firewalld.service
+   Wants=network-online.target
+
+   [Service]
+   Type=notify
+   ExecStart=/usr/bin/dockerd --insecure-registry 192.168.0.103：80
+   再修改
+   [root@docker shell]# cat /etc/docker/daemon.json 
+
+   {
+     "registry-mirrors": [
+       "https://registry.docker-cn.com"
+     ]
+   }
+   {
+     "insecure-registry":["192.169.0.103：80"]
+   }
+   然后重启服务
+   systemctl daemon-reload
+   systemctl restart docker
+   
+2、docker ps 报错
+  
+  ERROR: 
+        Can't find a suitable configuration file in this directory or any
+        parent. Are you in the right directory?
+        Supported filenames: docker-compose.yml, docker-compose.yaml
+  切换到docker-compose.yaml所在目录下 启动成功
+  
+  #cd /root/harbor
+  
+3、ERROE:Cannot locate specified Dockerfile: Dockerfile
+   需要在docker-compose.yml里面指定Dockerfile路径
+   [root@docker data]# tree compose-test/
+   compose-test/
+   ├── docker
+   │ ├── docker-compose.yml
+   │ ├── requirement.txt
+   │ └── web
+   │ └── Dockerfile
+   └── src
+       └── app.py
+   在docker-compose.yml文件添加如下字段
+   app:
+       build:
+         context: web
+         dockerfile: Dockerfile
+         
+4、Docker默认的配置文件/etc/default/docker或者/etc/sysconfig/docker都不起作用，查看了一下/lib/systemd/system/docker.service文件，发现里面没有加载默认配置文件，一些配置不知道要怎么弄了~~~
+
+   解决办法是：
+
+   $ vi /lib/systemd/system/docker.service
+   #添加一行
+   $ EnvironmentFile=-/etc/default/docker
+   或者
+   $ EnvironmentFile=-/etc/sysconfig/docker
+   #-代表ignore error
+
+   #并修改
+   $ ExecStart=/usr/bin/docker daemon -H fd://
+   #改成
+   $ ExecStart=/usr/bin/docker daemon -H fd:// $DOCKER_OPTS
+
+   这样才能使用/etc/default/docker里定义的DOCKER_OPTS参数
+
+   $ systemctl daemon-reload 重载
+   $ sudo service docker restart
+  
+5、上传dockerfile失败
+
+   docker push 192.168.0.103:80/public/centos:2019011
+   
+   
