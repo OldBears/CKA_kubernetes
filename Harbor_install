@@ -207,6 +207,10 @@ systemctl restart docker
 5、参考文档
 
    https://github.com/goharbor/harbor/blob/master/docs/installation_guide.md
+ 
+6、docker-compose日常操作
+
+   docker-compose stop/start
    
 三、常见问题
 
